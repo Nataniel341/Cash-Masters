@@ -47,7 +47,6 @@ const Game = {
         Config.upgrades.forEach(u => state.counts[u.id] = state.counts[u.id] || 0);
         UI.render();
         setInterval(() => { state.money += this.getCps()/10; UI.update(); }, 100);
-        setInterval(() => this.save(), 5000);
     },
     getMult() {
         let m = 1;
@@ -85,8 +84,8 @@ const Game = {
             UI.render(); this.save();
         } else if(owned && type === 'skins') { state.currentSkin = id; UI.render(); this.save(); }
     },
-    save() { localStorage.setItem('CASH_MASTERS_MOBILE', JSON.stringify(state)); },
-    load() { const d = localStorage.getItem('CASH_MASTERS_MOBILE'); if(d) state = JSON.parse(d); },
+    save() { localStorage.setItem('CASH_MASTERS_FINAL', JSON.stringify(state)); },
+    load() { const d = localStorage.getItem('CASH_MASTERS_FINAL'); if(d) state = JSON.parse(d); },
     hardReset() { if(confirm("WIPE DATA?")) { localStorage.clear(); location.reload(); } }
 };
 
@@ -134,8 +133,7 @@ const UI = {
     pop(x, y, txt) {
         const d = document.createElement('div'); d.className = 'click-pop';
         d.style.left = x + 'px'; d.style.top = y + 'px'; d.innerText = txt;
-        d.style.color = 'white'; document.body.appendChild(d);
-        setTimeout(() => d.remove(), 600);
+        document.body.appendChild(d); setTimeout(() => d.remove(), 600);
     }
 };
 window.onload = () => Game.init();
