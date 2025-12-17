@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CASH MASTERS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+    <div class="vignette"></div>
+
+    <header>
+        <div class="logo">CASH <span class="matrix-text">MASTERS</span></div>
+        <button class="reset-btn" onclick="Game.hardReset()">RESET_SYSTEM</button>
+    </header>
+
+    <main class="wrapper">
+        <section class="stats">
+            <h1 id="money-display">$0</h1>
+            <div class="info-row">
+                <div class="pill">CPC: <span id="cpc-val">1</span></div>
+                <div class="pill">CPS: <span id="cps-val">0</span></div>
+                <div class="pill">MULT: <span id="mult-val">x1.0</span></div>
+            </div>
+        </section>
+
+        <div id="pets-zone" class="pets-container"></div>
+
+        <section class="click-zone">
+            <div class="button-container">
+                <button id="main-button" onclick="Game.click(event)">
+                    <span class="dollar-icon">$</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="shop">
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="UI.switchTab('upgrades', this)">MODUŁY</button>
+                    <button class="tab-btn" onclick="UI.switchTab('pets', this)">BOTY</button>
+                    <button class="tab-btn" onclick="UI.switchTab('skins', this)">NEONY</button>
+                </div>
+            </div>
+            <div class="shop-list" id="shop-scroll-area">
+                <div id="shop-content"></div>
+                <div class="spacer"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

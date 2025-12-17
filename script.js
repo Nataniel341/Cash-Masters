@@ -1,0 +1,172 @@
+// MATRIX ENGINE
+const canvas = document.getElementById('matrix-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+const drops = Array(Math.floor(canvas.width/16)).fill(1);
+function drawM() {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#0F0'; ctx.font = '15px monospace';
+    drops.forEach((y, i) => {
+        ctx.fillText("01"[Math.floor(Math.random()*2)], i*16, y*16);
+        if(y*16 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+    });
+}
+setInterval(drawM, 50);
+
+// GAME LOGIC
+const Config = {
+    upgrades: [
+        { id: 'u1', name: 'BASIC_CLICK', type: 'cpc', cost: 15, power: 1, desc: 'Więcej kasy za klik' },
+        { id: 'u2', name: 'AUTO_BOT', type: 'cps', cost: 100, power: 3, desc: 'Klika za Ciebie' },
+        { id: 'u3', name: 'DATA_SERVER', type: 'cps', cost: 1000, power: 25, desc: 'Pasywny dochód' },
+        { id: 'u4', name: 'QUANTUM_CPU', type: 'cpc', cost: 7500, power: 100, desc: 'Potężne kliknięcie' },
+        { id: 'u5', name: 'GLOBAL_NET', type: 'cps', cost: 50000, power: 600, desc: 'Sieć generuje miliony' }
+    ],
+    pets: [
+        { id: 'p1', name: 'BIT-DOGE', cost: 2500, mult: 1.2, icon: '🐕' },
+        { id: 'p2', name: 'TECH-CAT', cost: 15000, mult: 1.5, icon: '🐈' },
+        { id: 'p3', name: 'ICE-BEAR', cost: 80000, mult: 2.0, icon: '🐻' },
+        { id: 'p4', name: 'ROBO-BUG', cost: 250000, mult: 3.5, icon: '🐞' },
+        { id: 'p5', name: 'GOLDEN-OWL', cost: 1000000, mult: 7.0, icon: '🦉' },
+        { id: 'p6', name: 'PHOENIX', cost: 10000000, mult: 20.0, icon: '🔥' }
+    ],
+    skins: [
+        { id: 'green', name: 'NEON GREEN', cost: 0, mult: 1.0, class: 'skin-green' },
+        { id: 'blue', name: 'CYBER BLUE', cost: 10000, mult: 1.8, class: 'skin-blue' },
+        { id: 'purple', name: 'ULTRA VIOLET', cost: 75000, mult: 3.5, class: 'skin-purple' },
+        { id: 'pink', name: 'HOT PINK', cost: 500000, mult: 8.0, class: 'skin-pink' },
+        { id: 'orange', name: 'VOLCANO', cost: 2500000, mult: 15.0, class: 'skin-orange' },
+        { id: 'red', name: 'HELL ENERGY', cost: 10000000, mult: 50.0, class: 'skin-red' }
+    ]
+};
+
+let state = { money: 0, counts: {}, bought: ['green'], currentSkin: 'green', tab: 'upgrades' };
+
+const Game = {
+    init() {
+        this.load();
+        Config.upgrades.forEach(u => state.counts[u.id] = state.counts[u.id] || 0);
+        UI.render();
+        // Dochód pasywny co 100ms
+        setInterval(() => { 
+            state.money += this.getCps()/10; 
+            UI.update(); 
+        }, 100);
+        // Backupowy auto-zapis co 10 sekund (na wszelki wypadek)
+        setInterval(() => this.save(), 10000);
+    },
+    getMult() {
+        let m = 1;
+        const skin = Config.skins.find(s => s.id === state.currentSkin);
+        if(skin) m *= skin.mult;
+        Config.pets.forEach(p => { if(state.bought.includes(p.id)) m *= p.mult; });
+        return m;
+    },
+    getCpc() {
+        let b = 1;
+        Config.upgrades.filter(u => u.type === 'cpc').forEach(u => b += u.power * state.counts[u.id]);
+        return b * this.getMult();
+    },
+    getCps() {
+        let b = 0;
+        Config.upgrades.filter(u => u.type === 'cps').forEach(u => b += u.power * state.counts[u.id]);
+        return b * this.getMult();
+    },
+    click(e) {
+        const val = this.getCpc(); 
+        state.money += val;
+        UI.pop(e.clientX, e.clientY, `+$${UI.fmt(val)}`); 
+        UI.update();
+        this.save(); // AUTO-ZAPIS PO KLIKNIĘCIU
+    },
+    buyU(id) {
+        const u = Config.upgrades.find(x => x.id === id);
+        const cost = Math.floor(u.cost * Math.pow(1.6, state.counts[id]));
+        if(state.money >= cost) { 
+            state.money -= cost; 
+            state.counts[id]++; 
+            UI.render(); 
+            this.save(); // AUTO-ZAPIS PO ZAKUPIE ULEPSZENIA
+        }
+    },
+    buyS(type, id) {
+        const item = Config[type].find(x => x.id === id);
+        const owned = state.bought.includes(id);
+        if(!owned && state.money >= item.cost) {
+            state.money -= item.cost; 
+            state.bought.push(id);
+            if(type === 'skins') state.currentSkin = id;
+            UI.render();
+            this.save(); // AUTO-ZAPIS PO ZAKUPIE NEONA/PETA
+        } else if(owned && type === 'skins') { 
+            state.currentSkin = id; 
+            UI.render(); 
+            this.save(); // AUTO-ZAPIS PO ZMIANIE NEONA
+        }
+    },
+    save() { 
+        localStorage.setItem('CM_PRO_SAVE', JSON.stringify(state)); 
+    },
+    load() { 
+        const d = localStorage.getItem('CM_PRO_SAVE'); 
+        if(d) state = JSON.parse(d); 
+    },
+    hardReset() { 
+        if(confirm("CZYŚCISZ WSZYSTKIE DANE? Tego nie da się cofnąć!")) { 
+            localStorage.clear(); 
+            location.reload(); 
+        } 
+    }
+};
+
+const UI = {
+    fmt(n) { return n >= 1e6 ? (n/1e6).toFixed(1)+'M' : (n >= 1e3 ? (n/1e3).toFixed(1)+'k' : Math.floor(n)); },
+    update() {
+        document.getElementById('money-display').innerText = '$' + this.fmt(state.money);
+        document.getElementById('cpc-val').innerText = this.fmt(Game.getCpc());
+        document.getElementById('cps-val').innerText = this.fmt(Game.getCps());
+        document.getElementById('mult-val').innerText = 'x' + Game.getMult().toFixed(1);
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            const cost = parseInt(btn.dataset.cost);
+            if(cost > 0 && state.money >= cost) btn.classList.add('can-afford');
+            else btn.classList.remove('can-afford');
+        });
+    },
+    render() {
+        const content = document.getElementById('shop-content'); content.innerHTML = '';
+        if(state.tab === 'upgrades') {
+            Config.upgrades.forEach(u => {
+                const cost = Math.floor(u.cost * Math.pow(1.6, state.counts[u.id]));
+                content.innerHTML += `<div class="card"><div class="card-info"><h3>${u.name}</h3><p>${u.desc}</p><span class="card-price">$${this.fmt(cost)}</span></div><button class="buy-btn" data-cost="${cost}" onclick="Game.buyU('${u.id}')">BUY</button></div>`;
+            });
+        } else if(state.tab === 'pets') {
+            Config.pets.forEach(p => {
+                const owned = state.bought.includes(p.id);
+                content.innerHTML += `<div class="card"><div class="card-info"><h3>${p.icon} ${p.name}</h3><p>Boost x${p.mult}</p></div><button class="buy-btn" data-cost="${owned?0:p.cost}" onclick="Game.buyS('pets','${p.id}')">${owned?'MAX':'$'+this.fmt(p.cost)}</button></div>`;
+            });
+        } else {
+            Config.skins.forEach(s => {
+                const owned = state.bought.includes(s.id); const active = state.currentSkin === s.id;
+                content.innerHTML += `<div class="card"><div class="card-info"><h3>${s.name}</h3><p>Boost x${s.mult}</p></div><button class="buy-btn" data-cost="${owned?0:s.cost}" onclick="Game.buyS('skins','${s.id}')">${active?'ACTIVE':(owned?'SET':'$'+this.fmt(s.cost))}</button></div>`;
+            });
+        }
+        const activeSkin = Config.skins.find(s => s.id === state.currentSkin);
+        document.getElementById('main-button').className = activeSkin.class;
+        const pZone = document.getElementById('pets-zone'); pZone.innerHTML = '';
+        Config.pets.forEach(p => { if(state.bought.includes(p.id)) pZone.innerHTML += `<span class="pet-item">${p.icon}</span>`; });
+        this.update();
+    },
+    switchTab(t, btn) {
+        state.tab = t; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active'); this.render();
+    },
+    pop(x, y, txt) {
+        const d = document.createElement('div'); d.className = 'click-pop';
+        d.style.color = `white`;
+        d.style.left = x + 'px'; d.style.top = y + 'px'; d.innerText = txt;
+        document.body.appendChild(d); setTimeout(() => d.remove(), 800);
+    }
+};
+
+window.onload = () => Game.init();
