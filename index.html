@@ -29,20 +29,16 @@
         <div id="pets-zone" class="pets-container"></div>
 
         <section class="click-zone">
-            <div class="button-container">
-                <button id="main-button" onclick="Game.click(event)">
-                    <span class="dollar-icon">$</span>
-                </button>
-            </div>
+            <button id="main-button" onpointerdown="Game.click(event)">
+                <span class="dollar-icon">$</span>
+            </button>
         </section>
 
         <section class="shop">
-            <div class="tabs-container">
-                <div class="tabs">
-                    <button class="tab-btn active" onclick="UI.switchTab('upgrades', this)">MODUŁY</button>
-                    <button class="tab-btn" onclick="UI.switchTab('pets', this)">BOTY</button>
-                    <button class="tab-btn" onclick="UI.switchTab('skins', this)">NEONY</button>
-                </div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="UI.switchTab('upgrades', this)">MODUŁY</button>
+                <button class="tab-btn" onclick="UI.switchTab('pets', this)">BOTY</button>
+                <button class="tab-btn" onclick="UI.switchTab('skins', this)">NEONY</button>
             </div>
             <div class="shop-list">
                 <div id="shop-content"></div>
