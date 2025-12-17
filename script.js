@@ -15,27 +15,27 @@ setInterval(drawM, 50);
 
 const Config = {
     upgrades: [
-        { id: 'u1', name: 'BASIC_CLICK', type: 'cpc', cost: 15, power: 1, desc: 'Więcej kasy za klik' },
+        { id: 'u1', name: 'KLIK_MOD', type: 'cpc', cost: 15, power: 1, desc: 'Więcej kasy za klik' },
         { id: 'u2', name: 'AUTO_BOT', type: 'cps', cost: 100, power: 3, desc: 'Klika za Ciebie' },
-        { id: 'u3', name: 'DATA_SERVER', type: 'cps', cost: 1000, power: 25, desc: 'Pasywny dochód' },
-        { id: 'u4', name: 'QUANTUM_CPU', type: 'cpc', cost: 7500, power: 100, desc: 'Potężne kliknięcie' },
-        { id: 'u5', name: 'GLOBAL_NET', type: 'cps', cost: 50000, power: 600, desc: 'Sieć generuje miliony' }
+        { id: 'u3', name: 'SERVER_V1', type: 'cps', cost: 1000, power: 25, desc: 'Pasywny dochód' },
+        { id: 'u4', name: 'CORE_X', type: 'cpc', cost: 8000, power: 120, desc: 'Potężne kliknięcie' },
+        { id: 'u5', name: 'GLOBAL_AI', type: 'cps', cost: 60000, power: 750, desc: 'Sieć generuje miliony' }
     ],
     pets: [
-        { id: 'p1', name: 'BIT-DOGE', cost: 2500, mult: 1.2, icon: '🐕' },
-        { id: 'p2', name: 'TECH-CAT', cost: 15000, mult: 1.5, icon: '🐈' },
-        { id: 'p3', name: 'ICE-BEAR', cost: 80000, mult: 2.0, icon: '🐻' },
-        { id: 'p4', name: 'ROBO-BUG', cost: 250000, mult: 3.5, icon: '🐞' },
-        { id: 'p5', name: 'GOLDEN-OWL', cost: 1000000, mult: 7.0, icon: '🦉' },
-        { id: 'p6', name: 'PHOENIX', cost: 10000000, mult: 20.0, icon: '🔥' }
+        { id: 'p1', name: 'BIT-DOGE', cost: 3000, mult: 1.2, icon: '🐕' },
+        { id: 'p2', name: 'TECH-CAT', cost: 20000, mult: 1.6, icon: '🐈' },
+        { id: 'p3', name: 'ICE-BEAR', cost: 100000, mult: 2.2, icon: '🐻' },
+        { id: 'p4', name: 'ROBO-BUG', cost: 350000, mult: 4.0, icon: '🐞' },
+        { id: 'p5', name: 'GOLD-OWL', cost: 1500000, mult: 8.5, icon: '🦉' },
+        { id: 'p6', name: 'PHOENIX', cost: 12000000, mult: 25.0, icon: '🔥' }
     ],
     skins: [
         { id: 'green', name: 'NEON GREEN', cost: 0, mult: 1.0, class: 'skin-green' },
-        { id: 'blue', name: 'CYBER BLUE', cost: 10000, mult: 1.8, class: 'skin-blue' },
-        { id: 'purple', name: 'ULTRA VIOLET', cost: 75000, mult: 3.5, class: 'skin-purple' },
-        { id: 'pink', name: 'HOT PINK', cost: 500000, mult: 8.0, class: 'skin-pink' },
-        { id: 'orange', name: 'VOLCANO', cost: 2500000, mult: 15.0, class: 'skin-orange' },
-        { id: 'red', name: 'HELL ENERGY', cost: 10000000, mult: 50.0, class: 'skin-red' }
+        { id: 'blue', name: 'CYBER BLUE', cost: 15000, mult: 2.0, class: 'skin-blue' },
+        { id: 'purple', name: 'ULTRA VIOLET', cost: 100000, mult: 4.5, class: 'skin-purple' },
+        { id: 'pink', name: 'HOT PINK', cost: 600000, mult: 10.0, class: 'skin-pink' },
+        { id: 'orange', name: 'VOLCANO', cost: 3000000, mult: 20.0, class: 'skin-orange' },
+        { id: 'red', name: 'HELL ENERGY', cost: 15000000, mult: 60.0, class: 'skin-red' }
     ]
 };
 
@@ -47,7 +47,7 @@ const Game = {
         Config.upgrades.forEach(u => state.counts[u.id] = state.counts[u.id] || 0);
         UI.render();
         setInterval(() => { state.money += this.getCps()/10; UI.update(); }, 100);
-        setInterval(() => this.save(), 10000);
+        setInterval(() => this.save(), 5000);
     },
     getMult() {
         let m = 1;
@@ -85,9 +85,9 @@ const Game = {
             UI.render(); this.save();
         } else if(owned && type === 'skins') { state.currentSkin = id; UI.render(); this.save(); }
     },
-    save() { localStorage.setItem('CM_MOBILE_FINAL', JSON.stringify(state)); },
-    load() { const d = localStorage.getItem('CM_MOBILE_FINAL'); if(d) state = JSON.parse(d); },
-    hardReset() { if(confirm("CZYŚCISZ DANE?")) { localStorage.clear(); location.reload(); } }
+    save() { localStorage.setItem('CASH_MASTERS_MOBILE', JSON.stringify(state)); },
+    load() { const d = localStorage.getItem('CASH_MASTERS_MOBILE'); if(d) state = JSON.parse(d); },
+    hardReset() { if(confirm("WIPE DATA?")) { localStorage.clear(); location.reload(); } }
 };
 
 const UI = {
@@ -118,11 +118,10 @@ const UI = {
         } else {
             Config.skins.forEach(s => {
                 const owned = state.bought.includes(s.id); const active = state.currentSkin === s.id;
-                content.innerHTML += `<div class="card"><div class="card-info"><h3>${s.name}</h3><p>Boost x${s.mult}</p></div><button class="buy-btn" data-cost="${owned?0:s.cost}" onclick="Game.buyS('skins','${s.id}')">${active?'ACTIVE':(owned?'SET':'$'+this.fmt(s.cost))}</button></div>`;
+                content.innerHTML += `<div class="card"><div class="card-info"><h3>${s.name}</h3><p>Boost x${s.mult}</p></div><button class="buy-btn" data-cost="${owned?0:s.cost}" onclick="Game.buyS('skins','${s.id}')">${active?'ON':(owned?'SET':'$'+this.fmt(s.cost))}</button></div>`;
             });
         }
-        const activeSkin = Config.skins.find(s => s.id === state.currentSkin);
-        document.getElementById('main-button').className = activeSkin.class;
+        document.getElementById('main-button').className = Config.skins.find(s => s.id === state.currentSkin).class;
         const pZone = document.getElementById('pets-zone'); pZone.innerHTML = '';
         Config.pets.forEach(p => { if(state.bought.includes(p.id)) pZone.innerHTML += `<span class="pet-item">${p.icon}</span>`; });
         this.update();
@@ -130,11 +129,13 @@ const UI = {
     switchTab(t, btn) {
         state.tab = t; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active'); this.render();
+        document.querySelector('.shop-list').scrollTop = 0;
     },
     pop(x, y, txt) {
         const d = document.createElement('div'); d.className = 'click-pop';
         d.style.left = x + 'px'; d.style.top = y + 'px'; d.innerText = txt;
-        document.body.appendChild(d); setTimeout(() => d.remove(), 800);
+        d.style.color = 'white'; document.body.appendChild(d);
+        setTimeout(() => d.remove(), 600);
     }
 };
 window.onload = () => Game.init();
