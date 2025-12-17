@@ -1,4 +1,3 @@
-// MATRIX ENGINE
 const canvas = document.getElementById('matrix-canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -14,7 +13,6 @@ function drawM() {
 }
 setInterval(drawM, 50);
 
-// GAME LOGIC
 const Config = {
     upgrades: [
         { id: 'u1', name: 'BASIC_CLICK', type: 'cpc', cost: 15, power: 1, desc: 'Więcej kasy za klik' },
@@ -48,12 +46,7 @@ const Game = {
         this.load();
         Config.upgrades.forEach(u => state.counts[u.id] = state.counts[u.id] || 0);
         UI.render();
-        // Dochód pasywny co 100ms
-        setInterval(() => { 
-            state.money += this.getCps()/10; 
-            UI.update(); 
-        }, 100);
-        // Backupowy auto-zapis co 10 sekund (na wszelki wypadek)
+        setInterval(() => { state.money += this.getCps()/10; UI.update(); }, 100);
         setInterval(() => this.save(), 10000);
     },
     getMult() {
@@ -74,50 +67,27 @@ const Game = {
         return b * this.getMult();
     },
     click(e) {
-        const val = this.getCpc(); 
-        state.money += val;
-        UI.pop(e.clientX, e.clientY, `+$${UI.fmt(val)}`); 
-        UI.update();
-        this.save(); // AUTO-ZAPIS PO KLIKNIĘCIU
+        const val = this.getCpc(); state.money += val;
+        UI.pop(e.clientX, e.clientY, `+$${UI.fmt(val)}`); UI.update();
+        this.save();
     },
     buyU(id) {
         const u = Config.upgrades.find(x => x.id === id);
         const cost = Math.floor(u.cost * Math.pow(1.6, state.counts[id]));
-        if(state.money >= cost) { 
-            state.money -= cost; 
-            state.counts[id]++; 
-            UI.render(); 
-            this.save(); // AUTO-ZAPIS PO ZAKUPIE ULEPSZENIA
-        }
+        if(state.money >= cost) { state.money -= cost; state.counts[id]++; UI.render(); this.save(); }
     },
     buyS(type, id) {
         const item = Config[type].find(x => x.id === id);
         const owned = state.bought.includes(id);
         if(!owned && state.money >= item.cost) {
-            state.money -= item.cost; 
-            state.bought.push(id);
+            state.money -= item.cost; state.bought.push(id);
             if(type === 'skins') state.currentSkin = id;
-            UI.render();
-            this.save(); // AUTO-ZAPIS PO ZAKUPIE NEONA/PETA
-        } else if(owned && type === 'skins') { 
-            state.currentSkin = id; 
-            UI.render(); 
-            this.save(); // AUTO-ZAPIS PO ZMIANIE NEONA
-        }
+            UI.render(); this.save();
+        } else if(owned && type === 'skins') { state.currentSkin = id; UI.render(); this.save(); }
     },
-    save() { 
-        localStorage.setItem('CM_PRO_SAVE', JSON.stringify(state)); 
-    },
-    load() { 
-        const d = localStorage.getItem('CM_PRO_SAVE'); 
-        if(d) state = JSON.parse(d); 
-    },
-    hardReset() { 
-        if(confirm("CZYŚCISZ WSZYSTKIE DANE? Tego nie da się cofnąć!")) { 
-            localStorage.clear(); 
-            location.reload(); 
-        } 
-    }
+    save() { localStorage.setItem('CM_MOBILE_FINAL', JSON.stringify(state)); },
+    load() { const d = localStorage.getItem('CM_MOBILE_FINAL'); if(d) state = JSON.parse(d); },
+    hardReset() { if(confirm("CZYŚCISZ DANE?")) { localStorage.clear(); location.reload(); } }
 };
 
 const UI = {
@@ -163,10 +133,8 @@ const UI = {
     },
     pop(x, y, txt) {
         const d = document.createElement('div'); d.className = 'click-pop';
-        d.style.color = `white`;
         d.style.left = x + 'px'; d.style.top = y + 'px'; d.innerText = txt;
         document.body.appendChild(d); setTimeout(() => d.remove(), 800);
     }
 };
-
 window.onload = () => Game.init();
