@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CASH MASTERS: UPDATE V1</title>
+    <title>CASH MASTERS: V1.5</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,45 +12,45 @@
     <div class="vignette"></div>
 
     <header>
-        <div class="header-left">
-            <div class="logo">CASH <span class="matrix-text">MASTERS</span> <span class="version">v1.0</span></div>
-            <div class="rebirth-counter">
-                <span class="purple-icon">⚛</span> <span id="rebirth-count">0</span>
-            </div>
-        </div>
-        <div class="header-right">
-             <div class="premium-currency">
-                <span class="purple-icon">🟣</span> <span id="rc-display">0</span> RC
-            </div>
-            <button class="reset-btn" onclick="Game.hardReset()">WIPE SAVE</button>
-        </div>
+        <div class="logo">CASH <span class="matrix-text">MASTERS</span> <span class="version">DEV_1.5</span></div>
+        <button class="reset-btn" onclick="Game.hardReset()">HARD RESET</button>
     </header>
 
     <main class="wrapper">
         <section class="stats">
             <h1 id="money-display">$0</h1>
+            
             <div class="info-row">
                 <div class="pill">CPC: <span id="cpc-val" class="green">1</span></div>
                 <div class="pill">CPS: <span id="cps-val" class="blue">0</span></div>
-                <div class="pill">MULT: <span id="mult-val" class="orange">x1.0</span></div>
+            </div>
+            
+            <div class="info-row">
+                <div class="pill border-orange">MULT: <span id="mult-val" class="orange">x1.0</span></div>
+                <div class="pill border-purple">RC: <span id="rc-val" class="purple">0</span></div>
+                <div class="pill border-purple">REB: <span id="reb-val" class="purple">0</span></div>
             </div>
         </section>
 
         <div id="pets-zone" class="pets-container"></div>
 
         <section class="click-zone">
-            <div class="button-container">
-                <button id="main-button" onpointerdown="Game.click(event)">
-                    <span class="dollar-icon">$</span>
-                    <div id="accessory-display" class="accessory-overlay"></div>
-                </button>
-            </div>
+            <button id="main-button" onpointerdown="Game.click(event)">
+                <span class="dollar-icon">$</span>
+                <div id="accessory-display" class="accessory-overlay"></div>
+            </button>
         </section>
 
-        <div id="rebirth-btn-container" class="rebirth-zone" style="display:none;">
-            <button class="rebirth-btn" onclick="Game.doRebirth()">
-                <span class="pulse-text">WYKONAJ REBIRTH</span>
-                <span class="rebirth-cost">Wymagane: $1.0M | Nagroda: <span id="potential-rc">1</span> RC</span>
+        <div id="rebirth-zone" class="rebirth-container" style="display:none;">
+            <button class="rebirth-btn" onclick="Game.attemptRebirth()">
+                <div class="reb-left">
+                    <span class="pulse">⚠️ DOSTĘPNY REBIRTH</span>
+                    <span class="reb-cost">Koszt: $<span id="next-rebirth-cost">1M</span></span>
+                </div>
+                <div class="reb-right">
+                    <span>NAGRODA:</span>
+                    <span class="reb-reward">+<span id="rebirth-reward-val">1</span> RC</span>
+                </div>
             </button>
         </div>
 
